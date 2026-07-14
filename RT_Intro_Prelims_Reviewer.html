@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>RT Intro Prelims — HAU Deep Reviewer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#0A0F1A;
+    --panel:#101827;
+    --panel2:#151F32;
+    --glow:#6FE3D6;
+    --amber:#F2B84B;
+    --text:#EAF0F2;
+    --muted:#8CA0AE;
+    --danger:#F2705B;
+    --good:#7BDB8F;
+    --violet:#9C8CF0;
+    --line: rgba(111,227,214,0.18);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: radial-gradient(circle at 20% 0%, #0F1E2B 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap{max-width: 940px; margin: 0 auto;}
+
+  .masthead{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px; margin-bottom: 18px;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .masthead .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; color: var(--glow);
+    text-transform: uppercase;
+  }
+  .masthead h1{ margin: 4px 0 0; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+  .masthead .sub{ color:var(--muted); font-size: 12.5px; margin-top:2px; font-family:'IBM Plex Mono',monospace;}
+
+  .tabs{ display:flex; gap:8px; margin-bottom: 20px; flex-wrap:wrap;}
+  .tab{
+    font-family:'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing:0.03em;
+    padding: 9px 13px; border-radius: 999px; cursor:pointer; user-select:none;
+    border: 1px solid var(--line); color: var(--muted); background: var(--panel);
+    transition: all .15s ease;
+  }
+  .tab:hover{ color: var(--text); border-color: var(--glow); }
+  .tab.active{ background: var(--glow); color:#04211D; border-color:var(--glow); font-weight:600; }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; animation: fade .25s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .panel-intro{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:14px; line-height:1.6; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px;}
+  .panel-intro b{ color:var(--glow); }
+
+  /* Lightbox flashcard */
+  .lightbox{
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 6px;
+    box-shadow: 0 0 0 1px rgba(111,227,214,0.06), 0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .lightbox-inner{
+    background: linear-gradient(180deg, #0C141F, #0A101B);
+    border-radius: 10px; min-height: 240px; padding: 32px 26px;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    position: relative; border: 1px solid rgba(111,227,214,0.12);
+    box-shadow: inset 0 0 40px rgba(111,227,214,0.05); cursor: pointer;
+  }
+  .lightbox-inner::before{
+    content:""; position:absolute; inset:10px;
+    border: 1px dashed rgba(111,227,214,0.15); border-radius: 6px; pointer-events:none;
+  }
+  .card-label{ position:absolute; top: 12px; left: 16px; font-family:'IBM Plex Mono',monospace;
+    font-size: 10.5px; color: var(--glow); letter-spacing: 0.1em; }
+  .card-cat{ position:absolute; top:12px; right:16px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--violet); letter-spacing:.06em; }
+  .card-text{ font-size: 18px; line-height:1.5; max-width: 640px; }
+  .card-text.answer{ color: var(--amber); font-size: 16.5px; }
+  .hint{ position:absolute; bottom:10px; right:14px; font-size:10px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+
+  .deck-controls{ display:flex; align-items:center; justify-content:space-between; margin-top: 14px; gap: 10px; flex-wrap:wrap; }
+  .btnrow{ display:flex; gap:8px; flex-wrap:wrap; }
+  button.ctrl{
+    font-family:'IBM Plex Mono', monospace; font-size: 12.5px;
+    background: var(--panel2); color: var(--text); border: 1px solid var(--line);
+    padding: 10px 16px; border-radius: 8px; cursor:pointer; transition: all .15s ease;
+  }
+  button.ctrl:hover{ border-color: var(--glow); color: var(--glow); }
+  button.ctrl.primary{ background: var(--glow); color:#04211D; border-color:var(--glow); font-weight:600;}
+  button.ctrl.danger{ background: var(--danger); color:#2A0805; border-color:var(--danger); font-weight:600;}
+  .counter{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted);}
+
+  .qcard{ background: var(--panel); border:1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+  .qnum{ font-family:'IBM Plex Mono',monospace; color:var(--glow); font-size:11.5px; margin-bottom:6px; letter-spacing:.05em;}
+  .qtext{ font-size: 15px; margin-bottom: 12px; line-height:1.55; white-space:pre-line;}
+  input[type=text]{
+    width:100%; background:#0B121D; border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; border-radius:8px; font-family:'IBM Plex Sans',sans-serif; font-size:14px;
+  }
+  input[type=text]:focus{ outline:none; border-color:var(--glow); }
+  .choice{
+    display:flex; align-items:flex-start; gap:10px; padding:9px 10px; border-radius:8px;
+    cursor:pointer; margin-bottom:6px; border:1px solid transparent; font-size:14px; line-height:1.4;
+  }
+  .choice:hover{ background: rgba(111,227,214,0.06); }
+  .choice input{ accent-color: var(--glow); margin-top:3px; flex-shrink:0;}
+  .choice.correct{ background: rgba(123,219,143,0.12); border-color: var(--good); }
+  .choice.wrong{ background: rgba(242,112,91,0.12); border-color: var(--danger); }
+
+  .feedback{ font-size:12.5px; margin-top:8px; font-family:'IBM Plex Mono',monospace; }
+  .feedback.good{ color: var(--good); }
+  .feedback.bad{ color: var(--danger); }
+  .explain{ font-size:12.5px; margin-top:6px; color:var(--muted); font-style:italic; border-left:2px solid var(--violet); padding-left:8px; display:none; }
+  .explain.show{ display:block; }
+
+  .tf-row{ display:flex; gap:10px; margin-top:6px; }
+  .tf-btn{ flex:1; text-align:center; padding:8px; border-radius:8px; border:1px solid var(--line);
+    cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted); }
+  .tf-btn:hover{ border-color:var(--glow); color:var(--text); }
+  .tf-btn.sel-correct{ background:rgba(123,219,143,0.15); border-color:var(--good); color:var(--good);}
+  .tf-btn.sel-wrong{ background:rgba(242,112,91,0.15); border-color:var(--danger); color:var(--danger);}
+
+  .scorebar{ position: sticky; top: 0; z-index: 5; background: rgba(10,15,26,0.92); backdrop-filter: blur(6px);
+    padding: 10px 14px; border-radius: 10px; border:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;
+    font-family:'IBM Plex Mono',monospace; font-size:13px; flex-wrap:wrap; gap:8px;}
+  .scorebar .val{ color: var(--amber); font-weight:600; }
+  .checkall{ margin-top: 6px; }
+
+  .section-title{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin: 22px 0 10px; font-family:'IBM Plex Mono',monospace; }
+
+  /* Quiz mode */
+  .quiz-stage{ background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; position:relative; overflow:hidden; }
+  .quiz-topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); }
+  .quiz-progress{ height:6px; background:#0B121D; border-radius:6px; overflow:hidden; margin-bottom:18px; }
+  .quiz-progress-fill{ height:100%; background: var(--glow); transition: width .2s linear; }
+  .timer-ring{ display:flex; align-items:center; gap:8px; }
+  .timer-bar{ width:120px; height:8px; background:#0B121D; border-radius:6px; overflow:hidden; }
+  .timer-fill{ height:100%; background: var(--amber); transition: width .1s linear; }
+  .quiz-q{ font-size: 18px; font-weight:600; margin-bottom: 18px; line-height:1.4; min-height: 50px; white-space:pre-line;}
+  .quiz-choices{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width:560px){ .quiz-choices{ grid-template-columns: 1fr; } }
+  .quiz-choice{
+    padding: 16px; border-radius: 10px; border:1px solid var(--line); background: var(--panel2);
+    cursor:pointer; font-size:14px; transition: all .12s ease; display:flex; align-items:center; gap:10px;
+  }
+  .quiz-choice .shape{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .quiz-choice:hover{ border-color: var(--glow); transform: translateY(-1px); }
+  .quiz-choice.correct{ background: rgba(123,219,143,0.18); border-color: var(--good); }
+  .quiz-choice.wrong{ background: rgba(242,112,91,0.18); border-color: var(--danger); }
+  .quiz-choice.disabled{ pointer-events:none; opacity:0.55; }
+  .quiz-choice.disabled.correct, .quiz-choice.disabled.wrong{ opacity:1; }
+
+  .quiz-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; }
+  .streak{ color: var(--amber); }
+  .quiz-startscreen, .quiz-endscreen{ text-align:center; padding: 40px 20px; }
+  .quiz-startscreen h2, .quiz-endscreen h2{ font-size:22px; margin-bottom:10px; }
+  .quiz-startscreen p, .quiz-endscreen p{ color: var(--muted); font-size:13.5px; margin-bottom: 20px;}
+  .bigscore{ font-size: 52px; font-weight:700; color: var(--glow); font-family:'IBM Plex Mono',monospace; }
+  .gradepill{ display:inline-block; padding:6px 16px; border-radius:999px; font-family:'IBM Plex Mono',monospace; font-weight:700; margin-top:8px; }
+
+  /* Feynman cards */
+  .fey-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; margin-bottom:14px; overflow:hidden; }
+  .fey-head{ padding:16px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .fey-head:hover{ background: rgba(111,227,214,0.05); }
+  .fey-title{ font-size:16px; font-weight:700; }
+  .fey-badge{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--violet); border:1px solid var(--violet); border-radius:999px; padding:3px 10px; letter-spacing:.05em; white-space:nowrap;}
+  .fey-body{ display:none; padding: 0 18px 18px; }
+  .fey-body.open{ display:block; animation: fade .2s ease; }
+  .fey-step{ margin-bottom:14px; padding-left:14px; border-left:3px solid var(--line); }
+  .fey-step .lbl{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--glow); letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; }
+  .fey-step.simple{ border-color: var(--good); }
+  .fey-step.gap{ border-color: var(--amber); }
+  .fey-step.full{ border-color: var(--violet); }
+  .fey-step p{ margin:0; font-size:14px; line-height:1.6; color: var(--text); }
+  .fey-chev{ font-family:'IBM Plex Mono',monospace; color:var(--muted); transition: transform .2s ease; }
+  .fey-chev.open{ transform: rotate(180deg); }
+
+  .examhead{ background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); line-height:1.7; }
+  .examhead .ehtitle{ color:var(--amber); font-size:13px; font-weight:700; margin-bottom:6px; font-family:'IBM Plex Sans',sans-serif; }
+
+  @media (max-width:600px){
+    .card-text{ font-size:15.5px; }
+    .lightbox-inner{ padding: 22px 14px; min-height: 200px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Holy Angel University · San Fernando, Pampanga · SNAMS</div>
+      <h1>RT Intro — Prelim Deep Reviewer</h1>
+      <div class="sub">BS Radiologic Technology · 1st Year · Science of Radiology, Healthcare Environment &amp; Hospital Organization</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="flash">Flashcards</div>
+    <div class="tab" data-tab="feynman">Feynman Deep-Dive</div>
+    <div class="tab" data-tab="blank">Fill-in-the-Blank</div>
+    <div class="tab" data-tab="mock">Foundations Mock Test</div>
+    <div class="tab" data-tab="exam">Module 2-3 Exam</div>
+    <div class="tab" data-tab="quiz">Quiz Mode ⚡</div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="panel active" id="panel-flash">
+    <div class="panel-intro"><b>How to use:</b> Read the question side, say your answer OUT LOUD before flipping (active recall beats re-reading). Shuffle often — order-memorization is a false sense of mastery.</div>
+    <div class="lightbox">
+      <div class="lightbox-inner" id="flashInner" onclick="flipCard()">
+        <div class="card-label" id="flashLabel">CARD 1 · QUESTION</div>
+        <div class="card-cat" id="flashCat"></div>
+        <div class="card-text" id="flashText"></div>
+        <div class="hint">click to flip</div>
+      </div>
+    </div>
+    <div class="deck-controls">
+      <div class="btnrow">
+        <button class="ctrl" onclick="prevCard()">← Prev</button>
+        <button class="ctrl" onclick="flipCard()">Flip</button>
+        <button class="ctrl primary" onclick="nextCard()">Next →</button>
+      </div>
+      <div class="btnrow">
+        <button class="ctrl" onclick="shuffleCards()">Shuffle</button>
+        <span class="counter" id="flashCounter">1 / 1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEYNMAN -->
+  <div class="panel" id="panel-feynman">
+    <div class="panel-intro"><b>The Feynman Technique:</b> for each concept — (1) a plain-English explanation you could give a 12-year-old, (2) the exact spot most 1st years trip up, then (3) the full technical definition you're accountable for on the exam. Click a card to expand. Try covering the "full definition" and re-explaining it in your own words before you peek — if you stumble, that's the gap to restudy.</div>
+    <div id="feynmanList"></div>
+  </div>
+
+  <!-- FILL IN THE BLANK -->
+  <div class="panel" id="panel-blank">
+    <div class="panel-intro"><b>Tip:</b> Typing forces recall harder than recognizing — this is the closest simulation to actually writing the answer on an exam. Partial/contains-matching is accepted.</div>
+    <div class="scorebar">
+      <span>Fill-in-the-Blank Progress</span>
+      <span><span class="val" id="blankScore">0</span> / <span id="blankTotal">0</span> checked correct</span>
+    </div>
+    <div id="blankList"></div>
+    <button class="ctrl primary checkall" onclick="checkAllBlanks()">Check All Answers</button>
+  </div>
+
+  <!-- MOCK TEST (foundations) -->
+  <div class="panel" id="panel-mock">
+    <div class="panel-intro"><b>Foundations Mock Test:</b> core science of radiology — energy, radiation, ionization, x-ray discovery, the pioneers, imaging/therapeutic modalities. This is separate from the Module 2-3 exam below.</div>
+    <div class="scorebar">
+      <span>Mock Test Score</span>
+      <span><span class="val" id="mockScore">0</span> / <span id="mockTotal">0</span></span>
+    </div>
+    <div class="section-title">Part I · Multiple Choice</div>
+    <div id="mcqList"></div>
+    <div class="section-title">Part II · True or False</div>
+    <div id="tfList"></div>
+    <button class="ctrl primary checkall" onclick="gradeMock()">Grade My Test</button>
+  </div>
+
+  <!-- MODULE 2-3 EXAM -->
+  <div class="panel" id="panel-exam">
+    <div class="examhead">
+      <div class="ehtitle">RTINTRO — Introduction to Radiologic Technology and Healthcare · Prelim Term</div>
+      MODULE NO. 2-3 QUIZ: HEALTHCARE ENVIRONMENT &amp; HOSPITAL ORGANIZATION — recreated from your actual quiz sheet (47 items), with full answer-key rationale added below each item after grading.<br/>
+      1. READ each question carefully. 2. Choose the BEST answer. 3. This digital version auto-grades — no shading needed. 4. After grading, wrong answers show the correct choice AND why, Feynman-style.
+    </div>
+    <div class="scorebar">
+      <span>Module Exam Score</span>
+      <span><span class="val" id="examScore">0</span> / <span id="examTotal">0</span></span>
+    </div>
+    <div id="examList"></div>
+    <button class="ctrl primary checkall" onclick="gradeExam()">Grade My Exam</button>
+  </div>
+
+  <!-- QUIZ MODE (Quizizz-style) -->
+  <div class="panel" id="panel-quiz">
+    <div class="quiz-stage" id="quizStage"></div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// FLASHCARDS
+// =====================================================================
+const FLASHCARDS = [
+["What is radiation?", "Energy emitted and transferred through space at the speed of light — a process of emitting a particle, ray, or energy through matter.", "Core Science"],
+["What is kinetic energy?", "Energy in motion.", "Core Science"],
+["What is chemical energy?", "Energy released by a chemical reaction.", "Core Science"],
+["What is electrical energy?", "The work that can be done when an electron moves through an electric potential difference (voltage).", "Core Science"],
+["What is thermal energy?", "Kinetic energy of molecules at the molecular level; closely related to temperature.", "Core Science"],
+["What is electromagnetic energy, and what does it include?", "The least familiar form of energy, used in x-ray imaging. Includes x-rays, gamma rays, radio waves, microwaves, UV, infrared, and visible light — NOT sound or diagnostic ultrasound.", "Core Science"],
+["What is ionization?", "The removal of an electron from an atom.", "Core Science"],
+["What is ionizing radiation? Give an example.", "Radiation capable of removing an orbital electron from an atom — e.g. x-rays.", "Core Science"],
+["What is sound, and can it travel through a vacuum?", "A form of mechanical energy; it CANNOT travel through a vacuum (unlike EM energy).", "Core Science"],
+["What is diagnostic medical sonography?", "The field of study that creates anatomic images by recording reflected sound waves — a non-ionizing modality.", "Core Science"],
+["Ionizing vs. Non-ionizing radiation — give the key difference and one example each.", "Ionizing = harmful, can cause mutation (e.g. x-ray). Non-ionizing = non-harmful (e.g. MRI, ultrasound).", "Core Science"],
+["Define Radiography.", "The making of radiographs — records of internal body structures — by passage of x-rays or gamma rays onto film, a digital imaging plate, or system.", "RT Field"],
+["Define Radiologic Technology.", "The technical science using x-rays or radioactive substances for diagnostic or therapeutic purposes in medicine; also involves radiation therapy.", "RT Field"],
+["What is X-ray Technology?", "An auxiliary branch of radiology dealing with the technical application of x-rays to aid diagnosis of diseases and injuries.", "RT Field"],
+["Who is a Radiologic Technologist?", "A general term for persons qualified to use x-rays or radioactive substances to produce body images for a Radiologist to interpret.", "RT Field"],
+["Who is a Radiologist?", "A physician who provides interpretation/reading of radiographic images — CT, MRI, general films, mammograms, sonograms.", "RT Field"],
+["Who is a Radiographer?", "A Radiologic Technologist specializing in using x-rays to create body images; performs skeletal, chest, abdomen exams and administers contrast media for GI/GU visualization.", "RT Field"],
+["What specialist areas do Radiographers often train in?", "Trauma radiography, mobile radiography, CT, MRI, fluoroscopy, angiography, and operating theatre (C-arm).", "RT Field"],
+["Do radiographers interpret the images they produce?", "No — that is the radiologist's role. Radiographers focus on producing high-quality images and patient care; radiologists rely heavily on radiographers' input.", "RT Field"],
+["What do RXT and RRT mean?", "Registered X-ray Technologist / Registered Radiologic Technologist — recognized by the Professional Regulation Commission (PRC).", "RT Field"],
+["How long is the Associate in Radiologic Technology program? The BS program?", "Associate = 3 years; BS Radiologic Technology (BSRT) = 4 years.", "RT Field"],
+["Who discovered x-rays, and when/where?", "Wilhelm Conrad Roentgen, on November 8, 1895, at the University of Wurzburg, Germany.", "History"],
+["What did Roentgen initially call x-rays, and why?", "\"X energy\" — the 'X' stood for unknown.", "History"],
+["What screen material fluoresced in Roentgen's experiment?", "Barium platinocyanide.", "History"],
+["What award did Roentgen receive, and when?", "The FIRST Nobel Prize in Physics, in 1901.", "History"],
+["What is the Crookes Tube?", "An early experimental electrical discharge tube with partial vacuum, invented by William Crookes (c. 1869-1875), in which cathode rays (streams of electrons) were discovered.", "History"],
+["Who was Anna Bertha Ludwig-Roentgen?", "Roentgen's wife — her hand x-ray was the first indication of the medical application of x-rays, taken within days of the discovery.", "History"],
+["Who was Eddie McCarthy?", "A young patient from Hanover, New Hampshire, whose broken wrist (from ice skating) was the first documented medical x-ray examination in the US, photographed by the 'X light.'", "History"],
+["Who produced the first known US radiograph, and when?", "Michael Pupin, on January 2, 1896.", "History"],
+["Who was Clarence M. Dally?", "One of Thomas Edison's assistants — the FIRST x-ray fatality in the US, suffering a severe x-ray burn that required amputation.", "History"],
+["What did Thomas Edison contribute to early x-ray study?", "He experimented with x-rays and helped popularize fluoroscopy and calcium tungstate screens, though he ultimately questioned the effects of x-rays after his own eyes became sore/red.", "History"],
+["Who invented the cyclotron, and when?", "Ernest (Orlando) Lawrence, in 1932 — a chamber that accelerates particles to high speed; it first made radioisotopes available in large quantities.", "History"],
+["Who induced the first successful nuclear chain reaction?", "Enrico Fermi, in 1942, in a uranium pile at the University of Chicago.", "History"],
+["Who discovered radioactivity, and how?", "Henri Becquerel, through uranium salts that emitted x-ray-like penetrating rays spontaneously (not dependent on an external energy source).", "History"],
+["What did Pierre Curie notice about radium?", "That radium killed diseased cells — the first suggestion of the medical utility of radioactivity (1880s-90s experiments).", "History"],
+["What are Marie Curie's key achievements?", "Purified radium metal, refined the theory of radioactivity, discovered Polonium and Radium, and became the first person honored with TWO Nobel Prizes (Physics 1903, Chemistry 1911).", "History"],
+["Who jointly won the 1903 Nobel Prize in Physics for radioactivity?", "Pierre Curie, Marie Curie, and Henri Becquerel.", "History"],
+["Name the 3 pioneers most credited with discovering/studying radioactivity.", "Pierre Curie, Marie Curie, and Antoine Henri Becquerel.", "History"],
+["William Gilbert of England — contribution?", "Studied electricity and magnetism; noted for inventing a primitive electroscope.", "Pioneers"],
+["Robert Boyle — contribution?", "His experiments with electricity earned him a place among the serious early investigators.", "Pioneers"],
+["Michael Faraday — contribution?", "Induced an electric current by moving a magnet in/out of a coil (1831) — the concept of electromagnetic induction, leading to better generators/transformers/high-voltage tubes.", "Pioneers"],
+["Johann Wilhelm Hittorf — contribution?", "Conducted experiments with cathode rays — streams of electrons emitted from a cathode's surface.", "Pioneers"],
+["William Crookes — contribution?", "Furthered study of cathode rays; showed matter was emitted from the cathode with enough energy to rotate a wheel in a tube. Developed/named the Crookes Tube.", "Pioneers"],
+["Philipp Lenard — contribution?", "Furthered cathode ray research; found cathode rays could penetrate thin metal and studied their deflection by magnetic fields.", "Pioneers"],
+["William Goodspeed — contribution?", "Produced a radiograph in 1890 (before Roentgen's discovery) but was not credited — his achievement was only recognized in retrospect.", "Pioneers"],
+["Richard Leach Maddox — contribution?", "Produced a film with a gelatin silver bromide emulsion — the basic component of film ever since.", "Pioneers"],
+["George Eastman — contribution?", "Produced and patented roll-paper film, establishing the basis for modern-day radiography.", "Pioneers"],
+["What is General Radiography (X-ray)?", "The basic diagnostic modality producing a static image (radiograph) via x-ray passage through the body onto a detector/film.", "Modalities"],
+["What is Chest Radiography (CXR)?", "X-ray imaging focused on the thoracic cavity (lungs, heart, ribs).", "Modalities"],
+["What is Fluoroscopy, and what contrast agent is its basis?", "An x-ray test showing moving, real-time images on a screen like a movie; Barium sulfate is the basis for GI tract contrast studies.", "Modalities"],
+["What is Interventional Radiology?", "Image-guided minimally invasive procedures (e.g. angiography-guided treatments) performed using radiologic imaging for guidance.", "Modalities"],
+["What is Mammography?", "X-ray imaging specifically of breast tissue for screening/diagnosis.", "Modalities"],
+["What is Computed Tomography (CT)?", "A three-dimensional X-ray imaging test that produces cross-sectional images using a rotating x-ray source/detector.", "Modalities"],
+["What is Magnetic Resonance Imaging (MRI)?", "A three-dimensional imaging test powered by a large magnet — a non-ionizing modality.", "Modalities"],
+["What is Ultrasonography (UTZ)?", "Imaging using high-frequency sound waves reflected off tissue — non-ionizing, cannot travel through a vacuum.", "Modalities"],
+["What is Nuclear Medicine (incl. PET)?", "A modality using small amounts of radioactive tracers introduced into the body to visualize physiologic/metabolic function, not just anatomy.", "Modalities"],
+["What is Angiography?", "Imaging of blood vessels and the heart, often using contrast media.", "Modalities"],
+["What is the role of X-ray in the Operating Theatre?", "Assisting surgeons during operations using special mobile x-ray equipment called a C-Arm.", "Modalities"],
+["What is Linear Accelerator (LINAC) Radiation Therapy?", "A therapeutic modality that delivers high-energy x-ray/electron beams to treat tumors — a form of teletherapy equipment.", "Modalities"],
+["What is Brachytherapy?", "Placing radioactive material INSIDE the body (near/in the tumor) to destroy cancer cells.", "Modalities"],
+["What is Teletherapy?", "Delivering radiation from a source EXTERNAL to the patient, targeting the tumor from a distance.", "Modalities"],
+["Portable vs. Mobile vs. Transportable X-ray machines — distinguish them.", "Portable = can be carried by ONE able-bodied person. Mobile = permanently mounted on wheels, moved with reasonable ease (unit itself is wheeled/self-propelled). Transportable = designed to be broken down/moved between sites, generally larger than mobile.", "Modalities"],
+["What is the Healthcare Environment?", "The creation of a healthful atmosphere/milieu in a healthcare setting where coordination is the root, maintained at all times without lapses.", "Healthcare Env."],
+["What are the key Healthcare Environment factors?", "Ensuring healthcare professionals work in a congenial, motivating atmosphere, and promoting positive human interaction at the setting.", "Healthcare Env."],
+["Define Hospital.", "An institution built, staffed, and equipped for the diagnosis of disease and for medical/surgical treatment of the sick and injured, including their housing during the process.", "Healthcare Env."],
+["What is a 'bed-less hospital'?", "One that provides strictly ambulatory (outpatient) care and day surgery — patients arrive for short appointments and are discharged the same day.", "Healthcare Env."],
+["What are the two broad categories of a hospital by ownership?", "Government and Private.", "Healthcare Env."],
+["What is a General Hospital?", "One that admits ALL types of medical/surgical cases, concentrating on acute illnesses needing short-term care; has organized medical staff and basic diagnostic equipment.", "Healthcare Env."],
+["Give 3 examples of Specialized Hospitals in the Philippines.", "National Kidney and Transplant Institute, Lung Center of the Philippines, Philippine Heart Center.", "Healthcare Env."],
+["What is Hospice care?", "Specialized care for those facing a life-limiting illness — addresses physical, emotional, social, spiritual needs; takes place at home or home-like setting; prioritizes quality of life.", "Healthcare Env."],
+["What are Long-term-care facilities for?", "The elderly, infirm, and those with chronic irreversible/disabling disorders; today have a more active health-care role than in the past.", "Healthcare Env."],
+["What is Telemedicine?", "Provision of remote clinical services via real-time two-way audio/visual communication between patient and provider; complements (does not replace) face-to-face care.", "Healthcare Env."],
+["What is Teleradiology?", "The electronic transmission and remote interpretation of images via real-time two-way communication between the radiologic technologist and the radiologist.", "Healthcare Env."],
+["What is a Public Health Emergency?", "An occurrence or imminent threat of illness caused by bioterrorism, natural disaster, chemical attack, nuclear attack/accident, or accidental release of radioactive materials.", "Healthcare Env."],
+["List the Six Domains of Public Health Preparedness.", "Community Resilience, Incident Management, Information Management, Countermeasures & Mitigation, Surge Management, Biosurveillance.", "Healthcare Env."],
+["What does 'Incident Management' preparedness ensure?", "A coordinated, effective RESPONSE to the emergency.", "Healthcare Env."],
+["What does 'Information Management' preparedness ensure?", "That people are well informed of the incident to take an appropriate response.", "Healthcare Env."],
+["What is Bioterrorism?", "The intentional release of harmful biological agents (viruses, bacteria, toxins) to cause harm, fear, or disruption in a population.", "Healthcare Env."],
+["What is a Health Facility?", "A public or private establishment devoted primarily to the PROVISION of health promotion, prevention, diagnosis, treatment, rehabilitation, and palliation services.", "Primary Care"],
+["List examples of Health Care Professionals.", "MD, Nurse (RN), Midwife (RM), Dentist (DMD), Radiologic Technologist (RRT), Medical Technologist (RMT), Pharmacist (RPh).", "Primary Care"],
+["What is Interprofessional Collaboration?", "Practice/education where individuals from two or more professional backgrounds meet, interact, learn together, and collaborate with the client/physician at the center of care.", "Primary Care"],
+["What is a Community-Based Healthcare Organization?", "An association of community members organized to improve the health status of that community.", "Primary Care"],
+["What governs Pharmacies/Drug Outlets in the Philippines?", "RA 9711 (Food and Drug Administration Act of 2009) — they compound, dispense, and sell pharmaceutical products directly to patients.", "Primary Care"],
+["What is a Health Care Provider Network (HCPN)?", "A group of primary-to-tertiary care providers, public or private, offering integrated, people-centered care with a primary care provider as navigator/coordinator.", "Primary Care"],
+["What is a Health Maintenance Organization (HMO)?", "An entity that provides/covers designated health services for plan holders for a fixed prepaid premium — e.g. Medicare, CocoLife, Maxicare, MediCard.", "Primary Care"],
+["HMO vs. PPO — distinguish the key differences.", "HMO: in-network only, needs a Primary Care Physician + referrals, cheaper premiums. PPO: in-OR-out-of-network, no PCP required, no referrals needed for specialists, more expensive premiums.", "Primary Care"],
+["Define Primary Care.", "Initial-contact, accessible, continuous, comprehensive, coordinated care available at time of need, covering all presenting conditions with ability to coordinate referrals.", "Primary Care"],
+["Define Primary Health Care (whole concept).", "A whole-of-society approach ensuring the highest possible level of health/well-being through equitable delivery of quality health services.", "Primary Care"],
+["Primary Care Provider vs. Facility vs. Worker — distinguish.", "Provider = certified health worker in primary care. Facility = licensed institution delivering primary care. Worker = health professional OR community volunteer certified by DOH to provide primary care services.", "Primary Care"],
+["What defines 'health' per the WHO-style definition in the reviewer?", "A state of complete physical, mental, and social well-being — NOT merely the absence of disease.", "Primary Care"],
+["What does the Board of Trustees do?", "Operates the hospital in trust for the community; establishes the mission, bylaws, and strategic policies; selects the CEO and delegates daily operations/budgeting.", "Hospital Org"],
+["What does the CEO (Executive Administration) do?", "Reports to the governing board; implements strategic goals; represents the hospital externally; coordinates the collective effort of hospital personnel.", "Hospital Org"],
+["Who is the leader of the clinical/medical team?", "The physician — diagnoses the patient's condition and prescribes the best, most cost-effective treatment plan.", "Hospital Org"],
+["What is the Medical Staff?", "A formally organized, self-governing unit within the hospital, primarily physicians, but may include other doctoral-level professionals (dentists, psychologists).", "Hospital Org"],
+["What is the largest department/component of a hospital?", "Nursing Services (also called patient care services) — responsible for carrying out the physician's treatment plan.", "Hospital Org"],
+["What are Allied Health Services?", "Support departments that help with diagnosis/treatment — clinical laboratory (autopsy, cytology, pathology), medical technologists, radiology department, rehabilitation services.", "Hospital Org"],
+["What are Clinical Support Services?", "E.g. the hospital pharmacy — purchases/dispenses medications; the pharmacist works with medical staff on the drug formulary.", "Hospital Org"],
+["What are Administrative Support Services?", "Non-medical services necessary for business/physical-plant management, led directly by the CEO — includes business services, finance, accounting, admitting, info/records, HR.", "Hospital Org"],
+["What does the Finance Department do?", "Advises the CEO on financial policy/long-range planning, sets accounting procedures, receives/deposits monies, approves salary/expenditure payments.", "Hospital Org"],
+["What does the Human Resources Department do?", "Interacts with ALL departments to ensure the quality and motivation of hospital personnel — recruitment, retention, benefits, compensation.", "Hospital Org"],
+["What are the sub-departments of Radiology?", "Radiography, Ultrasound, Nuclear Medicine (PET/SPECT), CT, MRI, Vascular Ultrasound, Interventional Radiology, Radiation Therapy.", "Hospital Org"],
+["What does the Administrative Director of Radiology do?", "Reports to senior hospital administration; has direct responsibility/authority for department operation — planning, organizing, directing, coordinating, educating, staffing, safety.", "Hospital Org"],
+["What is a Mission Statement?", "Defines the hospital's business, its objective, and its approach to reach those objectives (the 'what we do now').", "Management"],
+["What is a Vision Statement?", "Describes the hospital's DESIRED FUTURE position (the 'what we want to become').", "Management"],
+["What is Management (McFarland's definition)?", "The process by which managers create, direct, maintain, and operate purposive organizations through systematic, coordinated, cooperative human effort.", "Management"],
+["List the 7 Managerial Functions in order.", "Planning → Organizing → Staffing → Directing → Motivating → Controlling → Coordinating & Communicating.", "Management"],
+["What is Planning?", "The FIRST managerial function — setting a predetermined course of action (objectives, strategies, policies) to accomplish set goals; decision-making is its heart.", "Management"],
+["What is Organizing?", "Putting life into the plan by bringing together personnel, capital, machinery, and materials to execute it.", "Management"],
+["What is Staffing?", "Filling organizational positions by appointing competent, qualified people — needs manpower planning, selection, training, remuneration, performance appraisal.", "Management"],
+["What is Directing?", "Managing managers/workers through motivation, leadership, communication, and coordination — the ability to command and direct others.", "Management"],
+["What is Motivating?", "Inspiring/encouraging people to take required action — the key to successful management.", "Management"],
+["What is Controlling?", "Measuring actual results vs. a performance standard, finding reasons for deviation, and taking corrective action — steps: identify, select mode, evaluate, spot deviations, ascertain causes, take remedial measures.", "Management"],
+["What is Coordinating?", "Ensures harmonious, unified action toward a common objective so all groups/persons work efficiently, economically, and in harmony — needs effective communication channels.", "Management"],
+["What is Communication (as a management function)?", "The transfer of information/understanding from person to person — enables a group to think and act together.", "Management"],
+["Distinguish Micromanaging from Controlling.", "Micromanaging = excessively supervising every detail, limiting autonomy, dictating HOW every task is done. Controlling = monitoring/evaluating whether objectives, quality standards, and targets are MET, comparing results to targets and correcting when needed.", "Management"],
+];
+
+// =====================================================================
+// FEYNMAN DEEP-DIVE
+// =====================================================================
+const FEYNMAN = [
+{
+  title:"Ionizing vs. Non-ionizing Radiation",
+  simple:"Imagine energy as tiny bullets. Some bullets (x-rays, gamma rays) hit an atom hard enough to knock an electron clean off it — that's 'ionizing,' and it can damage cells/DNA. Other kinds of energy (like the radio waves from your phone, or the magnet in an MRI, or sound waves in an ultrasound) just pass through or vibrate things without knocking electrons loose — 'non-ionizing,' basically harmless at diagnostic levels.",
+  gap:"Students often assume 'radiation' always means dangerous. It doesn't — MRI uses strong magnetic fields (non-ionizing) and ultrasound uses sound (non-ionizing, and can't even travel through a vacuum). Only x-rays and gamma rays in this course's scope are ionizing.",
+  full:"Ionization = the removal of an electron from an atom. Ionizing radiation is any radiation capable of removing an orbital electron from an atom it interacts with (e.g. x-rays) — it can cause mutation, hence 'harmful.' Non-ionizing radiation (e.g. MRI, ultrasound) cannot do this and is considered non-harmful."
+},
+{
+  title:"Radiologist vs. Radiographer vs. Radiologic Technologist",
+  simple:"Think of a hospital imaging department like a photography studio inside a courtroom. The Radiographer is the photographer — they position you, run the machine, and take the picture. The Radiologist is the judge — a medical doctor who reads that picture and delivers the verdict (diagnosis) to your doctor. 'Radiologic Technologist' is the umbrella job title that covers all the licensed people running x-ray/radioactive equipment — a Radiographer is one TYPE of Radiologic Technologist who specializes specifically in x-ray imaging.",
+  gap:"The most common exam trap: students think Radiologist = the person who takes your x-ray. Wrong — the Radiologist NEVER touches the machine on you; they only interpret. Also: 'Radiologic Technologist' is broader than 'Radiographer' — all radiographers are RTs, but RT also covers other x-ray/radioactive-substance specialists.",
+  full:"Radiologic Technologist = general term for persons qualified to use x-rays or radioactive substances to produce images of internal body parts for a Radiologist's interpretation. Radiologist = a physician who provides interpretation/reading of radiographic images (CT, MRI, films, mammograms, sonograms). Radiographer = a Radiologic Technologist specializing in x-ray use to create body images, performing skeletal/chest/abdomen exams and administering GI/GU contrast media."
+},
+{
+  title:"Micromanaging vs. Controlling (the exam's favorite trap)",
+  simple:"Picture two chiefs. Chief A stands over every RT's shoulder, checking every single button they press and re-doing their positioning for them — that's micromanaging: obsessing over HOW the task gets done, minute by minute. Chief B instead waits until the end of the month, looks at the department's error rate and patient wait times, compares those numbers to the target, and only steps in with a fix if something's off — that's controlling: checking WHETHER the goal was met, then correcting course.",
+  gap:"This is exam item #46-47 territory. Both sound like 'supervision,' so students pick randomly. The real distinguishing question to ask yourself: 'Is this person watching every step (micromanage) or checking the end result against a target (control)?' Micromanaging usually LOWERS trust/motivation/productivity; Controlling is a legitimate, healthy managerial function.",
+  full:"Micromanaging = excessively supervising every detail of employees' work and limiting their autonomy. Controlling = the process of measuring actual results against a performance standard, finding reasons for deviation, and taking corrective action — steps: identify potential problems → select mode of control → evaluate performance vs. plan → spot deviations → ascertain causes → take remedial measures."
+},
+{
+  title:"HMO vs. PPO",
+  simple:"HMO is like a members-only gym: you MUST go through the front desk (your Primary Care Physician) to get a referral before seeing a specialist, and you can only use THAT gym's equipment (in-network doctors) — but membership is cheap. PPO is like a gym day-pass you can use anywhere: you can walk straight to any specialist without a referral or a front-desk gatekeeper, in-network or out — but it costs more.",
+  gap:"Students mix up which one needs a referral. Memory hook: 'H' in HMO = 'Hold on, you need a Primary care doctor first.' 'P' in PPO = 'Pick anyone, no permission needed' (but Pricier).",
+  full:"HMO (Health Maintenance Organization): in-network care only, requires a Primary Care Physician (PCP) and referrals to see specialists, cheaper premiums. PPO (Preferred Provider Organization): in-OR-out-of-network care, no PCP required, no referrals needed for specialists, more expensive premiums."
+},
+{
+  title:"Portable vs. Mobile vs. Transportable X-ray Machines",
+  simple:"Portable = small enough that ONE person can literally pick it up and carry it (like a suitcase). Mobile = it's already sitting on wheels and rolls itself around the hospital floors, like a self-propelled cart. Transportable = a bigger x-ray FACILITY, mounted on wheels, moved between locations with 'reasonable ease' but generally needs more than casual one-person carrying.",
+  gap:"The exam explicitly tests the phrase 'carried by NOT more than one able-bodied person' — that specific wording = Portable, not Mobile. 'Permanently mounted on wheels, moved with reasonable ease' = Mobile.",
+  full:"Portable X-ray Machine: capable of being carried by no more than one able-bodied person. Mobile X-ray Machine: permanently mounted on wheels and can be moved with reasonable ease (self-contained unit). Transportable X-ray Facility: a larger unit/facility mounted for movement between sites, generally requiring more setup than a mobile unit."
+},
+{
+  title:"Brachytherapy vs. Teletherapy",
+  simple:"Brachy- comes from Greek for 'short distance' — think 'brachytherapy = bring the radiation right up close, INSIDE the body, next to the tumor.' Tele- means 'far' (like 'telephone' = far sound) — 'teletherapy = the radiation source stays far away, OUTSIDE the patient, and beams in from a distance,' like the LINAC machine.",
+  gap:"Students sometimes reverse these because both are 'radiation therapy.' The anchor: brachy = inside/close, tele = outside/far. LINAC (linear accelerator) is a classic teletherapy device.",
+  full:"Brachytherapy: placing radioactive material INSIDE the body to destroy cancer cells/tumors directly. Teletherapy: delivering radiation from a source EXTERNAL to the patient, targeting the tumor from a distance (e.g. via a Linear Accelerator)."
+},
+{
+  title:"'Health care' vs. 'Healthcare' vs. 'Health Facility'",
+  simple:"'Health care' (two words) = the actual SERVICE or treatment given to a patient — the verb-ish version, what's being done FOR you. 'Healthcare' (one word) = the whole INDUSTRY, system, or field — hospitals, insurance, professionals, all of it together, the noun for the system. 'Health Facility' = a specific PLACE (building/institution) devoted to providing those services.",
+  gap:"These three look almost identical on an exam and the choices are deliberately close. Anchor: care = the act/service; -care as one word = the system; facility = the building.",
+  full:"Health care: services or treatment provided to maintain/improve health, provided to patients. Healthcare: the industry, system, or field of delivering health services — used for the industry, organizations, professionals collectively. Health Facility: a public or private institution devoted primarily to the provision of health promotion, prevention, diagnosis, treatment, rehabilitation, and palliation services."
+},
+{
+  title:"Mission vs. Vision vs. Philosophy Statement",
+  simple:"Mission = 'What we DO, right now, and how.' Vision = 'What we WANT TO BECOME someday' (the destination). Philosophy = 'The VALUES/principles that guide how we behave while doing the mission and chasing the vision.'",
+  gap:"Students often swap Mission and Vision because both sound aspirational. Anchor: Mission is present-tense action ('to provide...'); Vision is future-tense identity ('a community in which...').",
+  full:"Mission Statement: defines the hospital's business, its objective, and its approach to reach those objectives. Vision Statement: describes the desired FUTURE position of the hospital. Philosophy: the guiding values/principles (e.g. balance in clinical care, quality improvement, research, and education) behind pursuing the mission and vision."
+},
+{
+  title:"Primary Care, Primary Health Care, Primary Care Provider/Facility/Worker",
+  simple:"'Primary Care' is the everyday, first-stop kind of medical care you get (like a check-up). 'Primary Health Care' zooms OUT to the whole-of-society philosophy — a country-wide promise that everyone gets fair access to quality health services. Then 'Provider,' 'Facility,' and 'Worker' just answer WHO or WHERE: Provider = the certified person, Facility = the certified building, Worker = the person actually delivering the care (professional or trained community volunteer).",
+  gap:"These 5 near-identical terms are a favorite exam trap (see items 3, 8, 12 style questions). Read the sentence for whether it's describing a PLACE (facility), a PERSON (provider/worker), or a whole SYSTEM/PHILOSOPHY (primary health care).",
+  full:"Primary Care: initial-contact, accessible, continuous, comprehensive, coordinated care for all presenting conditions, with ability to coordinate referrals. Primary Health Care: a whole-of-society approach ensuring the highest possible level of health/well-being through equitable delivery of quality services. Primary Care Provider: a certified health worker meeting DOH-defined competencies. Primary Care Facility: an institution licensed/registered by DOH that primarily delivers primary care. Primary Care Worker: a health professional OR DOH-certified community health worker/volunteer providing primary care services."
+},
+{
+  title:"The 7 Managerial Functions as one story",
+  simple:"Imagine opening a new radiology department. First you PLAN (decide what services to offer and set goals). Then you ORGANIZE (gather the machines, budget, and staff structure). Then you STAFF (actually hire the right radiographers). Then you DIRECT (tell the team how to run daily operations, give leadership). Then you MOTIVATE (keep morale and drive up so people actually perform). Then you CONTROL (check monthly reports against your targets, fix what's off). And running underneath ALL of it the whole time is COORDINATING & COMMUNICATING (making sure everyone's talking to each other so nothing falls apart).",
+  gap:"Students memorize the 7 words but can't explain WHY that order makes sense. If you can retell the 'opening a new department' story in your own words without looking, you've actually understood the sequence, not just memorized it.",
+  full:"Planning → Organizing → Staffing → Directing → Motivating → Controlling → Coordinating and Communicating. Planning: predetermined course of action to meet objectives (decision-making is its heart). Organizing: bringing together personnel/capital/machinery/materials to execute the plan. Staffing: filling positions with qualified people. Directing: managing/leading workers via motivation, communication, coordination. Motivating: inspiring people to take required action. Controlling: measuring results vs. standards and correcting deviations. Coordinating: ensuring harmonious, efficient, unified action toward common objectives via effective communication."
+},
+{
+  title:"Allied Health Services vs. Clinical Support Services vs. Administrative Support Services",
+  simple:"Allied Health = the other trained MEDICAL specialists helping diagnose/treat (like the lab techs, radiology dept, rehab therapists) — they touch the medical/clinical side directly. Clinical Support = services that supply what clinical staff need to treat patients, like the pharmacy stocking and dispensing drugs. Administrative Support = the purely business/paperwork side that keeps the building running (billing, HR, accounting) — non-medical.",
+  gap:"All three sound like 'support' departments so students guess. Anchor: Allied Health = other clinicians (lab, radiology, rehab). Clinical Support = pharmacy-type services feeding the clinical process. Administrative = money/paperwork/people-management, led directly by the CEO.",
+  full:"Allied Health Services: departments performing support functions for diagnosis/treatment — e.g. clinical laboratory (autopsy, cytology, pathology), medical technologists, radiology department, rehabilitation services. Clinical Support Services: e.g. hospital pharmacy — purchases and dispenses all medications; pharmacist works with medical staff on the drug formulary. Administrative Support Services: non-medical services necessary to the hospital's business/physical-plant management, led by the CEO — includes business services, finance, accounting, admitting, information/records, human resources."
+},
+{
+  title:"Public Health Emergency & the Six Domains of Preparedness",
+  simple:"A public health emergency is basically 'something bad that threatens a LOT of people's health at once' — a nuclear accident, bioterrorism, a chemical attack, a natural disaster. The Six Domains are the hospital/government's checklist for being ready for that: 1) Can the community bounce back? (Resilience) 2) Can we run the response smoothly? (Incident Mgmt) 3) Can we tell people what to do? (Information Mgmt) 4) Do we have the meds/supplies ready? (Countermeasures) 5) Can we handle a sudden flood of patients? (Surge Mgmt) 6) Can we detect the threat early? (Biosurveillance)",
+  gap:"Students confuse 'Incident Management' (coordinating the RESPONSE itself) with 'Information Management' (making sure people GET informed) — these show up as near-identical distractor choices on the exam.",
+  full:"Public Health Emergency: occurrence or imminent threat of illness caused by bioterrorism, natural disaster, chemical attack, nuclear attack/accident, or accidental radioactive release. Six Domains: Community Resilience (preparing for/recovering from emergencies), Incident Management (coordinating an effective response), Information Management (making sure people have information to act), Countermeasures and Mitigation (getting medicines/supplies where needed), Surge Management (expanding medical services for large events), Biosurveillance (investigating/identifying health threats)."
+},
+];
+
+// =====================================================================
+// FILL IN THE BLANK
+// =====================================================================
+const FILLBLANKS = [
+["Radiation is energy emitted and transferred through space at the speed of ______.", "light"],
+["______ energy is the least familiar form of energy and is used in x-ray imaging.", "electromagnetic"],
+["______ is the removal of an electron from an atom.", "ionization"],
+["Sound cannot travel through a ______.", "vacuum"],
+["______ discovered x-rays on November 8, 1895, at the University of Wurzburg.", "wilhelm conrad roentgen"],
+["Roentgen first called x-rays \"______ energy\" because the letter stood for unknown.", "x"],
+["Roentgen received the first Nobel Prize in ______ in 1901.", "physics"],
+["The screen in Roentgen's lab was painted with barium ______.", "platinocyanide"],
+["The ______ Tube, invented by William Crookes, was where cathode rays were discovered.", "crookes"],
+["______ was the first documented x-ray patient in the US, for a broken wrist.", "eddie mccarthy"],
+["______ produced the first known US radiograph, on January 2, 1896.", "michael pupin"],
+["______ was Edison's assistant and the first x-ray fatality in the US.", "clarence m. dally"],
+["______ invented the cyclotron in 1932.", "ernest lawrence"],
+["______ induced a successful nuclear chain reaction in a uranium pile in 1942.", "enrico fermi"],
+["______ discovered radioactivity through uranium salts.", "henri becquerel"],
+["______ purified radium metal and won two Nobel Prizes.", "marie curie"],
+["A registered radiographer uses the initials RXT or ______ after their name.", "rrt"],
+["The Associate in Radiologic Technology program takes ______ years.", "3"],
+["The BS Radiologic Technology (BSRT) program takes ______ years.", "4"],
+["______ therapy places radioactive material inside the body.", "brachytherapy"],
+["______ therapy delivers radiation from a source external to the patient.", "teletherapy"],
+["A radiographer's machine that can be carried by only one able-bodied person is called a ______ x-ray machine.", "portable"],
+["The ______ is the largest department/component of a hospital.", "nursing"],
+["______ typically requires a primary care physician and referrals to see a specialist.", "hmo"],
+["A ______ insurance plan allows in-or-out-of-network care with no referrals needed, but is more expensive.", "ppo"],
+["The ______ operates the hospital in trust for the community and sets its mission/bylaws.", "board of trustees"],
+["The chief executive officer is also known as the ______.", "ceo"],
+["Hospice care believes that ______ of life is as important as length of life.", "quality"],
+["______ is the whole-of-society approach ensuring equitable delivery of quality health services to all.", "primary health care"],
+["Bioterrorism involves the intentional release of harmful ______ agents to cause harm or disruption.", "biological"],
+["The ______ domain of preparedness ensures a coordinated, effective response to an emergency.", "incident management"],
+["The ______ domain of preparedness ensures people are informed to take appropriate action.", "information management"],
+["______ is the practice/education where two or more professional backgrounds meet and collaborate with the physician at the center of care.", "interprofessional collaboration"],
+["A ______ statement defines the hospital's business, objective, and approach to reach it.", "mission"],
+["A ______ statement describes the hospital's desired future position.", "vision"],
+["Planning is considered the ______ managerial function when management is reviewed as a process.", "first"],
+["______ is excessively supervising every detail of an employee's work and limiting autonomy.", "micromanaging"],
+["______ is measuring actual results against a performance standard and taking corrective action.", "controlling"],
+["The Human Resources Department is responsible for recruitment, retention, benefits, and ______ of employees.", "compensation"],
+["Radiologic technologists, nurses, and medical technologists all belong to the group of healthcare ______.", "professionals"],
+];
+
+// =====================================================================
+// FOUNDATIONS MOCK TEST (MCQ + TF)
+// =====================================================================
+const MOCK_MCQ = [
+{q:"Which is NOT a form of electromagnetic energy?", choices:["X-rays","Gamma rays","Ultrasound","Radio waves"], ans:2, explain:"Ultrasound is mechanical (sound) energy, not electromagnetic — EM energy does not include sound."},
+{q:"Ionization is best defined as:", choices:["Adding electrons to an atom","Removal of an electron from an atom","Creating new protons","Splitting the nucleus"], ans:1},
+{q:"Which of these is an example of ionizing radiation?", choices:["MRI","Ultrasound","X-ray","Visible light"], ans:2},
+{q:"Who discovered x-rays?", choices:["Marie Curie","Wilhelm Conrad Roentgen","Henri Becquerel","Thomas Edison"], ans:1},
+{q:"Where did Roentgen make his discovery?", choices:["University of Paris","University of Wurzburg","University of Chicago","MIT"], ans:1},
+{q:"What screen material fluoresced in Roentgen's lab?", choices:["Calcium tungstate","Barium platinocyanide","Silver bromide","Uranium salt"], ans:1},
+{q:"What award did Roentgen receive in 1901?", choices:["Fields Medal","Pulitzer Prize","First Nobel Prize in Physics","Turing Award"], ans:2},
+{q:"The Crookes Tube was used to discover:", choices:["Gamma rays","Cathode rays","Sound waves","Radioactivity"], ans:1},
+{q:"Who was the first documented x-ray patient in the US?", choices:["Clarence Dally","Eddie McCarthy","Michael Pupin","Thomas Edison"], ans:1},
+{q:"Who was the first x-ray fatality in the US?", choices:["Michael Pupin","Clarence M. Dally","Eddie McCarthy","William Crookes"], ans:1},
+{q:"Who invented the cyclotron?", choices:["Enrico Fermi","Ernest Lawrence","Henri Becquerel","Pierre Curie"], ans:1},
+{q:"Who induced the first successful nuclear chain reaction?", choices:["Ernest Lawrence","Enrico Fermi","Marie Curie","Roentgen"], ans:1},
+{q:"Who discovered radioactivity?", choices:["Marie Curie","Pierre Curie","Henri Becquerel","Ernest Lawrence"], ans:2},
+{q:"Marie Curie discovered which two elements?", choices:["Radium and Uranium","Polonium and Radium","Uranium and Polonium","Radon and Radium"], ans:1},
+{q:"RXT/RRT is a technologist registered with the:", choices:["DOH","PRC","FDA","DOST"], ans:1},
+{q:"How many years is the BS Radiologic Technology program?", choices:["2 years","3 years","4 years","5 years"], ans:2},
+{q:"Which is a non-ionizing imaging modality?", choices:["X-ray","CT scan","MRI","Mammography"], ans:2},
+{q:"Brachytherapy involves:", choices:["External radiation beams","Placing radioactive material inside the body","Using sound waves only","Using magnets only"], ans:1},
+{q:"Teletherapy delivers radiation:", choices:["From inside the tumor","From a source external to the patient","Through sound waves","Through chemotherapy"], ans:1},
+{q:"Radiologists primarily:", choices:["Position patients for x-rays","Operate the CT scanner directly","Interpret/read radiographic images","Administer contrast media"], ans:2},
+{q:"Radiographers are specialists who primarily:", choices:["Read and interpret x-ray films","Use x-rays to create body images","Manage hospital finances","Prescribe medication"], ans:1},
+{q:"William Gilbert of England is noted for inventing a:", choices:["Cyclotron","Primitive electroscope","Crookes Tube","Fluoroscope"], ans:1},
+{q:"Michael Faraday's 1831 experiment led to the concept of:", choices:["Nuclear fission","Electromagnetic induction","Radioactive decay","Piezoelectricity"], ans:1},
+{q:"Johann Wilhelm Hittorf experimented with:", choices:["Radium","Cathode rays","Barium sulfate","Gamma rays"], ans:1},
+{q:"Richard Leach Maddox is known for producing a film with:", choices:["Roll-paper base","Gelatin silver bromide emulsion","Calcium tungstate screen","Barium coating"], ans:1},
+{q:"George Eastman is known for:", choices:["Discovering x-rays","Patenting roll-paper film","Inventing the cyclotron","Discovering radioactivity"], ans:1},
+{q:"William Goodspeed produced a radiograph in 1890 but:", choices:["Was awarded the Nobel Prize","Was not credited with discovering x-rays","Discovered radioactivity","Invented the Crookes Tube"], ans:1},
+{q:"Fluoroscopy's contrast media is based on:", choices:["Iodine only","Barium sulfate","Calcium tungstate","Gadolinium"], ans:1},
+{q:"A C-Arm is special x-ray equipment used mainly in the:", choices:["Pharmacy","Operating theatre","Laboratory","Records room"], ans:1},
+{q:"CT stands for and is best described as a:", choices:["Continuous Tomography, 2D test","Computed Tomography, 3D x-ray imaging test","Clinical Test, blood-based","Central Telemetry, monitoring device"], ans:1},
+];
+
+const MOCK_TF = [
+["Electromagnetic energy includes sound and ultrasound.", false],
+["X-rays are a form of ionizing radiation.", true],
+["Roentgen discovered x-rays in 1895 at the University of Wurzburg.", true],
+["Roentgen received the Nobel Prize in Chemistry for discovering x-rays.", false],
+["The Crookes Tube was used to study cathode rays.", true],
+["Eddie McCarthy was the first documented x-ray patient in the US.", true],
+["Clarence Dally was the first x-ray fatality in the US.", true],
+["Marie Curie won only one Nobel Prize in her lifetime.", false],
+["Henri Becquerel discovered radioactivity through uranium salts.", true],
+["Brachytherapy delivers radiation from a source outside the body.", false],
+["A radiologist and a radiographer have identical job responsibilities.", false],
+["The Associate in Radiologic Technology program takes 3 years to complete.", true],
+["William Goodspeed was credited with discovering x-rays.", false],
+["A Mobile x-ray machine is permanently mounted on wheels.", true],
+["Radiographers are responsible for interpreting the images they produce.", false],
+];
+
+// =====================================================================
+// MODULE 2-3 EXAM — recreated from the actual HAU quiz sheet (47 items)
+// =====================================================================
+const EXAM = [
+{q:"Identify the appropriate term that refers to the services or treatment provided to maintain or improve health, often used when referring to care provided to patients.", choices:["Health care","Health facility","Healthcare","Primary care","None of the above"], ans:0, explain:"\"Health care\" (two words) = the actual services/treatment given to patients."},
+{q:"Identify the appropriate term that refers to the industry, system, or field of delivering health services, often used when referring to the industry, organizations, or professionals.", choices:["Health care","Health facility","Healthcare","Primary care","None of the above"], ans:2, explain:"\"Healthcare\" (one word) = the broader industry/system as a whole."},
+{q:"Identify the term that refers to being devoted primarily to the provision of services for diagnosis, treatment, and rehabilitation.", choices:["Community-based healthcare organization","Health Care Professional","Health Facility","Laboratories and Diagnostic Clinics","Pharmacies or drug outlets"], ans:2, explain:"This is the textbook definition of a Health Facility."},
+{q:"These are licensed facilities where tests are conducted on the human body or on specimens thereof to obtain information about a patient's health status for the diagnosis and treatment of diseases.", choices:["Community-based healthcare organization","Health Facility","Health Maintenance Organization (HMO)","Laboratories and Diagnostic Clinics","Pharmacies or drug outlets"], ans:3, explain:"Laboratories and Diagnostic Clinics are licensed specifically to conduct tests."},
+{q:"Identify the type of institution that is built, staffed, and equipped for the diagnosis of disease, for the treatment, both medical and surgical, of the sick and the injured.", choices:["Clinic","Hospice","Hospital","Modern Hospital","Rural health unit"], ans:2, explain:"This is the exact definition of a Hospital."},
+{q:"Identify the main function of a \"bedless hospital\".", choices:["Ambulatory and day surgeries","In-patient rehabilitation","Long-term hospitalization","Psychiatric care"], ans:0, explain:"Bedless hospitals provide strictly outpatient (ambulatory) care and day surgery — no overnight beds."},
+{q:"Determine the core of the healthcare environment.", choices:["Communication","Coordination","Medical Equipment","Motivation","Physicians"], ans:1, explain:"The reviewer explicitly states coordination is at the root of the healthcare environment."},
+{q:"Identify the entity that provides, offers, or covers designated health services for its plan holders or members for a fixed prepaid premium.", choices:["Community-based healthcare organization","Health Care Provider Network (HCPN)","Health Facility","Health Maintenance Organization (HMO)","Laboratories and Diagnostic Clinics"], ans:3, explain:"This is the definition of an HMO — fixed prepaid premium is the key phrase."},
+{q:"Identify the specialized type of care that addresses the physical, emotional, social, and spiritual needs of those facing a life-limiting illness in a home-like setting.", choices:["Hospice","Mental health facilities","Specialized Hospital","Telemedicine","None of the above"], ans:0, explain:"Hospice care explicitly covers physical, emotional, social, and spiritual needs in a home-like setting."},
+{q:"Identify the term for the provision of electronic transmission and remote interpretation of images via real-time two-way communication between the radiologic technologist and radiologist.", choices:["Telehealth","Telemedicine","Teleradiology","None of the above"], ans:2, explain:"Teleradiology is specifically the imaging-interpretation branch of telemedicine."},
+{q:"This involves the intentional release of harmful biological agents (such as viruses, bacteria, or toxins) with the aim of causing harm, fear, or disruption among a population.", choices:["Nuclear attack","Chemical attack","Bioterrorism","Radioactive spills"], ans:2, explain:"\"Biological agents\" is the key phrase pointing to bioterrorism."},
+{q:"This refers to a whole-of-society approach that aims to ensure the highest possible level of health and well-being through equitable delivery of quality health services.", choices:["Primary Care Provider","Primary Care Facility","Health Maintenance Organization (HMO)","Primary Health Care","Primary Care Worker"], ans:3, explain:"\"Whole-of-society approach\" is the defining phrase for Primary Health Care."},
+{q:"Select from the following an example of a public health emergency where there is an occurrence or imminent threat of an illness.\n1. Nuclear accidents   2. Physical attack   3. Bioterrorism   4. Radioactive spills", choices:["1 only","2 and 3 only","1, 3, and 4 only","1, 2, 3, 4"], ans:2, explain:"Public health emergency causes: bioterrorism, natural disaster, chemical attack, nuclear attack/accident, radioactive release — 'physical attack' (2) is not one of the listed causes."},
+{q:"During a late-night safety test, the operators at the Chernobyl Nuclear Power Plant attempted to simulate a power failure and emergency shutdown procedure. However, a series of operator errors and design flaws in the RBMK reactor led to a sudden uncontrolled power surge, which blew the roof off the reactor building and released a significant amount of radioactive material into the atmosphere. Conclude from the scenario the specific cause of the public health emergency.", choices:["A nuclear disaster led to a catastrophic public health emergency.","An accidental release of toxins from the nuclear reactors led to a catastrophic public health emergency.","A chemical attack led to a catastrophic public health emergency.","The abovementioned is an accurate example of a bioterrorism attack that led to the massive steam explosion."], ans:0, explain:"A reactor accident releasing radioactive material is a nuclear disaster/accident — not a chemical attack or bioterrorism (both imply intentional acts)."},
+{q:"This domain of preparedness refers to making sure that there is a coordinated, effective response to the emergency.", choices:["Information management","Community Resilience","Incident Management","Surge Management"], ans:2, explain:"\"Coordinating an effective response\" is the exact definition of Incident Management."},
+{q:"This domain of preparedness in public health ensures that people are well informed of the incident to take an appropriate response.", choices:["Information management","Community Resilience","Biosurveillance","Countermeasures and Mitigation"], ans:0, explain:"\"Making sure people have information to take action\" is Information Management."},
+{q:"MediCard, CocoLife, Maxicare, and Medicare are examples of:", choices:["Health Maintained Organization (HMO)","Preferred Provider Organization (PPO)","Health Maintenance Organization (HMO)","Primary Provider Organization (PPO)"], ans:2, explain:"These are all accredited HMOs — watch the spelling of the distractor choices closely."},
+{q:"Involved in compounding and/or dispensing and selling of pharmaceutical products directly to patients.", choices:["Pharmacies or drug outlets","Laboratories and Diagnostic Clinics","Dietary unit","None of the above"], ans:0, explain:"This is the definition of pharmacies/drug outlets under RA 9711."},
+{q:"Identify the term that refers to the practice and education where individuals from two or more professional backgrounds meet, interact, learn, and collaborate with the physicians at the center of care.", choices:["Interprofessional Collaboration","Multidisciplinary Collaboration","Team-based Collaboration","None of the above"], ans:0, explain:"Interprofessional Collaboration is defined exactly this way (Prentice et al., 2015)."},
+{q:"You are overseeing an MRI examination for a patient. The patient is a 50-year-old woman with a history of migraines and recent episodes of dizziness and loss of balance. During the MRI procedure, the patient begins to feel increasingly anxious and claustrophobic inside the MRI machine. She asks you to stop the procedure immediately. How would you handle this situation and ensure the patient's safety and comfort while obtaining the necessary diagnostic information?", choices:["Pause the MRI procedure and talk to the patient.","Proceed with the MRI, ignoring the patient's request, and assure her it will be over soon.","Administer sedation without proper evaluation or consent.","Suggest using headphones with loud music to distract the patient from her anxiety."], ans:0, explain:"Patient safety, consent, and treating the patient as a guest always come first — pause and communicate."},
+{q:"A 25-year-old patient was scheduled for cataract surgery. The procedure took about 30 minutes to complete. After the procedure, the patient was brought to the recovery room and waited for the attending physician's advice. Predict from the scenario the instruction that will be given by the physician.", choices:["The physician will instruct the patient to go home and continue with post-treatment care, as the procedure does not warrant confinement.","The physician will advise the patient to be confined to monitor any signs of complications from the surgery.","The physician will advise the patient to wear glasses to help with a faster healing process.","The physician will advise the patient to regularly put in antibacterial eye drops to prevent infection from surgery."], ans:0, explain:"A short, routine 30-minute cataract surgery is typically outpatient/ambulatory — it does not warrant confinement."},
+{q:"Deconstruct the legally constituted governing body of the general hospital. Select all that apply.\n1. Board of trustees   2. Chief Executive Officer (CEO)   3. Dietary department   4. Nursing department   5. Pharmaceutical department", choices:["1 and 2 only","1, 2, and 4 only","1, 2, 3, and 4 only","1, 2, 3, 4, 5"], ans:1, explain:"The governing structure centers on the Board, the CEO, and the largest department (Nursing) explicitly named alongside them."},
+{q:"Identify the term that refers to any collection of persons, materials, procedures, ideas, or facts arranged and ordered so that the combination of parts makes a meaningful whole that works towards achieving organizational objectives.", choices:["Healthcare environment","Hospital organization","Organization","Primary health care"], ans:2, explain:"This is the general definition of an Organization."},
+{q:"They are responsible for establishing the hospital's mission and establishing its bylaws and strategic policies.", choices:["Board of Trustees","Chief Executive Officer (CEO)","Medical director/directress","The medical staff"], ans:0, explain:"The Board of Trustees establishes mission, bylaws, and strategic policies."},
+{q:"Differentiate a physician from a doctor.", choices:["A doctor is a specific type of physician who performs surgeries.","A physician is a medical doctor who diagnoses and treats illnesses, while the term doctor can refer to anyone with a doctoral-level degree, including non-medical fields.","A physician refers to any person with a doctorate degree, while a doctor relates only to medical professionals.","There is no difference; both terms always refer to the same profession in all contexts."], ans:1, explain:"\"Physician\" is specifically medical; \"doctor\" is the broader term covering any doctoral-level degree holder."},
+{q:"This department interacts with all departments in the hospital to ensure the quality and motivation of personnel working at the hospital.", choices:["Accounting","Business services","Finance Department","Human resources","Information services and medical record maintenance"], ans:3, explain:"This is the definition of the Human Resources Department."},
+{q:"This department performs support functions that help with diagnosis and treatment, which include clinical pathology, radiology, and rehabilitation services.", choices:["Administrative support services","Allied Health Services","Business services","Clinical support services","Nursing services"], ans:1, explain:"Allied Health Services explicitly includes the clinical lab, radiology department, and rehab services."},
+{q:"Identify the health care professional who helps other doctors diagnose and treat diseases through interpreting diagnostic imaging examinations.", choices:["Nurse","Pathologist","Radiologic technologist","Radiologist","Surgeon"], ans:3, explain:"Interpreting imaging examinations is the Radiologist's defining role."},
+{q:"They are responsible for producing high-quality medical images that assist medical specialists and doctors in diagnosing or monitoring a patient's injury or illness.", choices:["Radiologic technologist","Radiologist","Radiologist technologist","Surgeon","X-ray technologist"], ans:0, explain:"Producing (not interpreting) high-quality images is the Radiologic Technologist's role."},
+{q:"This management principle/function refers to a predetermined course of action to accomplish the set objectives.", choices:["Organizing","Directing","Planning","Controlling","Coordinating"], ans:2, explain:"\"A plan is a predetermined course of action\" — this is Planning."},
+{q:"This includes putting life into the plan by bringing together personnel, capital, machinery, materials, etc., to execute the plan.", choices:["Controlling","Directing","Motivating","Organizing","Planning"], ans:3, explain:"This is the exact definition of Organizing."},
+{q:"This enables a group of people to think together and act together through the sharing of information and knowledge.", choices:["Communication","Controlling","Coordinating","Directing","Motivating"], ans:0, explain:"Communication is the transfer of information/understanding, enabling groups to think and act together."},
+{q:"This management function ensures that all groups and persons work efficiently, economically, and in harmony.", choices:["Communication","Controlling","Coordinating","Directing","Planning"], ans:2, explain:"\"Efficiently, economically, and in harmony\" is the exact phrasing for Coordinating."},
+{q:"What are the two categories of a hospital?", choices:["Government and Private","Government and Public","Public and District","Regional and Private","None of the above"], ans:0, explain:"Hospitals are broadly classified as Government or Private by ownership."},
+{q:"Recall the type of X-ray machine that is capable of being carried by NOT more than one able-bodied person.", choices:["Automobile X-ray machine","Mobile X-ray machine","Portable X-ray machine","Transportable X-ray machine","None of the above"], ans:2, explain:"\"Carried by not more than one able-bodied person\" defines Portable specifically."},
+{q:"Recall the type of X-ray facility that is permanently mounted on wheels and can be moved with reasonable ease.", choices:["Automobile X-ray machine","Mobile X-ray machine","Portable X-ray machine","Transportable X-ray facility","None of the above"], ans:1, explain:"\"Permanently mounted on wheels, moved with reasonable ease\" defines Mobile."},
+{q:"Radiologic technologists, nurses, medical technologists, pharmacists, and medical doctors belong to a group of:\n1. Healthcare professionals   2. Healthcare providers   3. Primary care workers   4. Healthcare facilities", choices:["1 only","1 and 2 only","1, 2, and 3 only","1, 2, 3, 4"], ans:1, explain:"These are all licensed people — they are healthcare professionals AND, collectively, healthcare providers, but not facilities."},
+{q:"A 70-year-old patient was diagnosed with stage 4 metastatic breast cancer and is now terminally ill. Most of the signs that death may be near are manifested and recognized. Given the situation, select the type of service or care that the 70-year-old would need.", choices:["Curative Care","Mental health care","Palliative Care","Preventive Care"], ans:2, explain:"Terminal illness with imminent death calls for Palliative/comfort-focused care, not curative treatment."},
+{q:"This defines the hospital's business, its objective, and its approach to reaching those objectives.", choices:["Mission statement","Objectives statement","Philosophy","Vision statement"], ans:0, explain:"This is the exact definition of a Mission Statement."},
+{q:"This describes the desired future position of the hospital.", choices:["Future statement","Mission statement","Philosophy","Vision statement","None of the above"], ans:3, explain:"This is the exact definition of a Vision Statement."},
+{q:"Identify the statement that does NOT define health.", choices:["A state of complete physical, mental, and social well-being and not merely the absence of disease.","It is the general condition of a person's mind and body.","The act of taking preventive or necessary medical procedures to improve a person's well-being.","The condition of the body and the degree to which it is free from illness."], ans:1, explain:"Choice B is a vague description, not a formal definition — A, C, and D reflect recognized definitions of health/healthcare action."},
+{q:"Distinguish from the following the members of the allied health services/unit. Select all that apply.\n1. Physical therapists   2. Nurses   3. Medical technologists   4. Physicians", choices:["2 and 4 only","1, 2, and 3 only","1 and 3 only","1, 2, 3, 4"], ans:2, explain:"Allied Health covers physical therapists and medical technologists — nurses and physicians belong to Nursing Services and the Medical Staff respectively, not Allied Health."},
+{q:"Which of the following is responsible for the recruitment, retention, benefits, and compensation of all employees who work in the hospital?", choices:["Administrative Department","Department Chairman","Finance Office","Human Resource Department"], ans:3, explain:"Recruitment, retention, benefits, and compensation are core HR functions."},
+{q:"A patient was scheduled for radiation therapy treatment at the Good Doctor Cancer Institute. As the radiation therapist positioned the patient on the treatment couch, he noticed that the patient appeared very weak and pale, and the patient told him she was having tight chest pains and shortness of breath. Given the problematic situation, judge how interprofessional collaboration would take place.", choices:["The radiation therapist will call the emergency room department and ask the nurse to prepare for possible cardiac arrest.","The radiation therapist will immediately call the attention of the attending radiation oncologist to assess the patient.","The radiation therapist will immediately defer the treatment and endorse the patient to the emergency department to conduct cardiopulmonary resuscitation (CPR).","The radiation therapist will immediately seek assistance from the radiation oncology nurses to check for vital signs and conduct a health assessment."], ans:2, explain:"Chest pain and shortness of breath are acute emergency signs — the priority is to defer treatment and get the patient to emergency care immediately, not to jump straight to CPR assumptions or wait for an assessment."},
+{q:"Which of the following is/are NOT the roles and responsibilities of a radiologic technologist?\n1. Operating and maintaining radiographic equipment.   2. Acquiring the patient's medical history.   3. Accurately positioning patients to obtain diagnostically acceptable images.   4. Evaluate resulting radiographic images.   5. Ensuring patient safety and maximizing radiation exposure.   6. Discuss the initial findings with the patient.", choices:["1, 2, 3, and 4 only","1, 3, and 4 only","2, 5, and 6 only","5 and 6 only","6 only"], ans:3, explain:"Item 5 is wrong because RTs must MINIMIZE (not maximize) radiation exposure; item 6 is wrong because discussing findings/diagnosis with the patient is the Radiologist's role, not the radiographer's."},
+{q:"Distinguish micromanaging from controlling as applied in the principles of management.", choices:["Micromanaging focuses on whether objectives, quality standards, and performance targets are met while controlling focuses on how employees perform every task.","Micromanaging is excessively supervising every detail of the employees' work and limiting their autonomy, whereas controlling is more of monitoring and evaluating performance to ensure organizational goals and standards are achieved.","Micromanaging is supervising the newly hired employees only while controlling is applicable to all staff or employees of the organization/institution.","Micromanaging promotes accountability, continuous improvement, and corrective action while allowing appropriate independence, while controlling reduces trust, motivation, confidence, and initiative which may lower productivity.","None of the above"], ans:1, explain:"Micromanaging = over-supervising every detail, limiting autonomy. Controlling = monitoring/evaluating whether goals/standards are met."},
+{q:"Compare the management styles demonstrated by Chief RT A and Chief RT B, then determine the correct combination.\nScenario — Chief RT (A): Insists on evaluating/quality-checking every image produced, checking every step, and telling its RT subordinates exactly how to complete routine and complex radiologic and clerical tasks in the department.\nChief RT (B): Reviews monthly performance reports of its staff and the department, compares results with targets, and implements corrective measures when goals are not achieved.", choices:["Chief RT (A) → Controlling, Chief RT (B) → Coordinating","Chief RT (A) → Controlling, Chief RT (B) → Micromanaging","Chief RT (A) → Directing, Chief RT (B) → Micromanaging","Chief RT (A) → Micromanaging, Chief RT (B) → Controlling","Chief RT (A) → Motivating, Chief RT (B) → Directing"], ans:3, explain:"Chief A checks EVERY step and dictates HOW tasks are done = Micromanaging. Chief B compares monthly RESULTS to targets and corrects deviations = Controlling."},
+];
+
+const DATA = { flashcards: FLASHCARDS, fillBlanks: FILLBLANKS, mcq: MOCK_MCQ, tf: MOCK_TF, exam: EXAM };
+
+// =====================================================================
+// FEYNMAN RENDER
+// =====================================================================
+function renderFeynman(){
+  const list = document.getElementById('feynmanList');
+  list.innerHTML = '';
+  FEYNMAN.forEach((f,i)=>{
+    const card = document.createElement('div');
+    card.className = 'fey-card';
+    card.innerHTML = `
+      <div class="fey-head" onclick="toggleFeynman(${i})">
+        <div class="fey-title">${f.title}</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="fey-badge">FEYNMAN</span>
+          <span class="fey-chev" id="fchev-${i}">▾</span>
+        </div>
+      </div>
+      <div class="fey-body" id="fbody-${i}">
+        <div class="fey-step simple"><div class="lbl">1 · Explain it simply</div><p>${f.simple}</p></div>
+        <div class="fey-step gap"><div class="lbl">2 · Where students trip up</div><p>${f.gap}</p></div>
+        <div class="fey-step full"><div class="lbl">3 · Full technical definition</div><p>${f.full}</p></div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+function toggleFeynman(i){
+  const body = document.getElementById(`fbody-${i}`);
+  const chev = document.getElementById(`fchev-${i}`);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// =====================================================================
+// FLASHCARD LOGIC
+// =====================================================================
+let order = [];
+let idx = 0, flipped = false;
+
+function initFlashOrder(){
+  order = DATA.flashcards.map((_,i)=>i);
+  idx = 0; flipped = false;
+}
+function renderCard(){
+  const cards = DATA.flashcards;
+  const [q,a,cat] = cards[order[idx]];
+  document.getElementById('flashLabel').textContent = `CARD ${idx+1} · ${flipped ? 'ANSWER' : 'QUESTION'}`;
+  document.getElementById('flashCat').textContent = cat || '';
+  const el = document.getElementById('flashText');
+  el.textContent = flipped ? a : q;
+  el.className = 'card-text' + (flipped ? ' answer' : '');
+  document.getElementById('flashCounter').textContent = `${idx+1} / ${cards.length}`;
+}
+function flipCard(){ flipped = !flipped; renderCard(); }
+function nextCard(){ idx = (idx+1) % order.length; flipped=false; renderCard(); }
+function prevCard(){ idx = (idx-1+order.length) % order.length; flipped=false; renderCard(); }
+function shuffleCards(){
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+  idx=0; flipped=false; renderCard();
+}
+
+// =====================================================================
+// FILL BLANK LOGIC
+// =====================================================================
+function normalize(s){ return s.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim(); }
+
+function renderBlanks(){
+  const fillBlanks = DATA.fillBlanks;
+  const blankList = document.getElementById('blankList');
+  blankList.innerHTML = '';
+  fillBlanks.forEach((f,i)=>{
+    const div = document.createElement('div');
+    div.className='qcard';
+    div.innerHTML = `<div class="qnum">ITEM ${i+1}</div>
+      <div class="qtext">${f[0]}</div>
+      <input type="text" id="blank-${i}" placeholder="Type your answer..." />
+      <div class="feedback" id="fb-blank-${i}"></div>`;
+    blankList.appendChild(div);
+  });
+  document.getElementById('blankTotal').textContent = fillBlanks.length;
+  document.getElementById('blankScore').textContent = '0';
+}
+function checkAllBlanks(){
+  const fillBlanks = DATA.fillBlanks;
+  let score = 0;
+  fillBlanks.forEach((f,i)=>{
+    const input = document.getElementById(`blank-${i}`);
+    const fb = document.getElementById(`fb-blank-${i}`);
+    const userVal = normalize(input.value);
+    const correctVal = normalize(f[1]);
+    const isRight = userVal.length>0 && (correctVal.includes(userVal) || userVal.includes(correctVal));
+    if(isRight){ score++; fb.textContent = '✓ Correct'; fb.className='feedback good'; }
+    else { fb.textContent = `✗ Answer: ${f[1]}`; fb.className='feedback bad'; }
+  });
+  document.getElementById('blankScore').textContent = score;
+}
+
+// =====================================================================
+// MOCK TEST LOGIC (foundations)
+// =====================================================================
+let tfAnswers = {};
+
+function renderMock(){
+  const mcq = DATA.mcq;
+  const tf = DATA.tf;
+  tfAnswers = {};
+
+  const mcqList = document.getElementById('mcqList');
+  mcqList.innerHTML = '';
+  mcq.forEach((m,i)=>{
+    const div = document.createElement('div');
+    div.className='qcard';
+    let choicesHtml = m.choices.map((c,ci)=>`
+      <label class="choice" id="mcq-${i}-${ci}">
+        <input type="radio" name="mcq-${i}" value="${ci}" /> ${c}
+      </label>`).join('');
+    div.innerHTML = `<div class="qnum">ITEM ${i+1}</div><div class="qtext">${m.q}</div>${choicesHtml}
+      <div class="feedback" id="fb-mcq-${i}"></div>`;
+    mcqList.appendChild(div);
+  });
+
+  const tfList = document.getElementById('tfList');
+  tfList.innerHTML = '';
+  tf.forEach((t,i)=>{
+    const div = document.createElement('div');
+    div.className='qcard';
+    div.innerHTML = `<div class="qnum">ITEM ${mcq.length + i + 1}</div><div class="qtext">${t[0]}</div>
+      <div class="tf-row">
+        <div class="tf-btn" id="tf-${i}-true" onclick="selectTF(${i},true)">TRUE</div>
+        <div class="tf-btn" id="tf-${i}-false" onclick="selectTF(${i},false)">FALSE</div>
+      </div>
+      <div class="feedback" id="fb-tf-${i}"></div>`;
+    tfList.appendChild(div);
+  });
+
+  document.getElementById('mockTotal').textContent = (mcq.length + tf.length);
+  document.getElementById('mockScore').textContent = '0';
+}
+
+function selectTF(i, val){
+  tfAnswers[i] = val;
+  document.getElementById(`tf-${i}-true`).classList.remove('sel-correct','sel-wrong');
+  document.getElementById(`tf-${i}-false`).classList.remove('sel-correct','sel-wrong');
+  const btn = document.getElementById(`tf-${i}-${val}`);
+  btn.style.outline = '2px solid var(--glow)';
+  setTimeout(()=>{ btn.style.outline='none'; }, 200);
+}
+
+function gradeMock(){
+  const mcq = DATA.mcq;
+  const tf = DATA.tf;
+  let score = 0;
+  mcq.forEach((m,i)=>{
+    const chosen = document.querySelector(`input[name="mcq-${i}"]:checked`);
+    const fb = document.getElementById(`fb-mcq-${i}`);
+    for(let ci=0; ci<m.choices.length; ci++){
+      document.getElementById(`mcq-${i}-${ci}`).classList.remove('correct','wrong');
+    }
+    document.getElementById(`mcq-${i}-${m.ans}`).classList.add('correct');
+    if(chosen){
+      const val = parseInt(chosen.value);
+      if(val === m.ans){ score++; fb.textContent='✓ Correct'; fb.className='feedback good'; }
+      else { document.getElementById(`mcq-${i}-${val}`).classList.add('wrong'); fb.textContent='✗ Incorrect'; fb.className='feedback bad'; }
+    } else { fb.textContent = '✗ Not answered — correct choice highlighted above'; fb.className='feedback bad'; }
+  });
+  tf.forEach((t,i)=>{
+    const fb = document.getElementById(`fb-tf-${i}`);
+    const userAns = tfAnswers[i];
+    document.getElementById(`tf-${i}-true`).classList.remove('sel-correct','sel-wrong');
+    document.getElementById(`tf-${i}-false`).classList.remove('sel-correct','sel-wrong');
+    const correctKey = t[1] ? 'true' : 'false';
+    document.getElementById(`tf-${i}-${correctKey}`).classList.add('sel-correct');
+    if(userAns === undefined){ fb.textContent='✗ Not answered'; fb.className='feedback bad'; }
+    else if(userAns === t[1]){ score++; fb.textContent='✓ Correct'; fb.className='feedback good'; }
+    else { const wrongKey = userAns ? 'true':'false'; document.getElementById(`tf-${i}-${wrongKey}`).classList.add('sel-wrong'); fb.textContent='✗ Incorrect'; fb.className='feedback bad'; }
+  });
+  document.getElementById('mockScore').textContent = score;
+  document.querySelector('#panel-mock .scorebar').scrollIntoView({behavior:'smooth'});
+}
+
+// =====================================================================
+// MODULE EXAM LOGIC
+// =====================================================================
+function renderExam(){
+  const exam = DATA.exam;
+  const examList = document.getElementById('examList');
+  examList.innerHTML = '';
+  exam.forEach((m,i)=>{
+    const div = document.createElement('div');
+    div.className='qcard';
+    let choicesHtml = m.choices.map((c,ci)=>`
+      <label class="choice" id="exam-${i}-${ci}">
+        <input type="radio" name="exam-${i}" value="${ci}" /> ${String.fromCharCode(65+ci)}. ${c}
+      </label>`).join('');
+    div.innerHTML = `<div class="qnum">ITEM ${i+1}</div><div class="qtext">${m.q}</div>${choicesHtml}
+      <div class="feedback" id="fb-exam-${i}"></div>
+      <div class="explain" id="ex-exam-${i}">💡 ${m.explain}</div>`;
+    examList.appendChild(div);
+  });
+  document.getElementById('examTotal').textContent = exam.length;
+  document.getElementById('examScore').textContent = '0';
+}
+function gradeExam(){
+  const exam = DATA.exam;
+  let score = 0;
+  exam.forEach((m,i)=>{
+    const chosen = document.querySelector(`input[name="exam-${i}"]:checked`);
+    const fb = document.getElementById(`fb-exam-${i}`);
+    const ex = document.getElementById(`ex-exam-${i}`);
+    for(let ci=0; ci<m.choices.length; ci++){
+      document.getElementById(`exam-${i}-${ci}`).classList.remove('correct','wrong');
+    }
+    document.getElementById(`exam-${i}-${m.ans}`).classList.add('correct');
+    ex.classList.add('show');
+    if(chosen){
+      const val = parseInt(chosen.value);
+      if(val === m.ans){ score++; fb.textContent='✓ Correct'; fb.className='feedback good'; }
+      else { document.getElementById(`exam-${i}-${val}`).classList.add('wrong'); fb.textContent='✗ Incorrect'; fb.className='feedback bad'; }
+    } else { fb.textContent = '✗ Not answered — correct choice highlighted above'; fb.className='feedback bad'; }
+  });
+  document.getElementById('examScore').textContent = score;
+  document.querySelector('#panel-exam .scorebar').scrollIntoView({behavior:'smooth'});
+}
+
+// =====================================================================
+// QUIZ MODE (Quizizz-style, timed)
+// =====================================================================
+const QUIZ_TIME = 15; // seconds per question
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizStreak = 0;
+let quizBestStreak = 0;
+let quizTimer = null;
+let quizTimeLeft = QUIZ_TIME;
+let quizAnswered = false;
+const SHAPE_COLORS = ["#6FE3D6","#F2B84B","#F2705B","#8E7CF0"];
+
+function buildQuizPool(){
+  const fromMcq = DATA.mcq.map(m => ({ q: m.q, choices: m.choices, ans: m.ans }));
+  const fromTf = DATA.tf.map(t => ({ q: t[0], choices: ["TRUE","FALSE"], ans: t[1] ? 0 : 1 }));
+  const fromExam = DATA.exam.map(m => ({ q: m.q, choices: m.choices, ans: m.ans }));
+  return fromMcq.concat(fromTf).concat(fromExam);
+}
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function renderQuizStart(){
+  const stage = document.getElementById('quizStage');
+  stage.innerHTML = `
+    <div class="quiz-startscreen">
+      <div class="eyebrow" style="color:var(--glow); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em;">QUIZ MODE · RT Intro Prelims</div>
+      <h2>Ready for a speed round?</h2>
+      <p>${buildQuizPool().length} rapid-fire questions pulled from the Foundations Mock Test AND the Module 2-3 Exam · ${QUIZ_TIME} seconds each · streak bonus for consecutive correct answers</p>
+      <button class="ctrl primary" onclick="startQuiz()" style="font-size:14px; padding:12px 26px;">Start Quiz</button>
+    </div>`;
+}
+
+function startQuiz(){
+  quizQuestions = shuffleArr(buildQuizPool());
+  quizIndex = 0; quizScore = 0; quizStreak = 0; quizBestStreak = 0;
+  showQuizQuestion();
+}
+
+function showQuizQuestion(){
+  clearInterval(quizTimer);
+  quizAnswered = false;
+  quizTimeLeft = QUIZ_TIME;
+  const total = quizQuestions.length;
+  const q = quizQuestions[quizIndex];
+  const stage = document.getElementById('quizStage');
+
+  const choiceShuffle = q.choices.map((c,i)=>({text:c, isCorrect:(i===q.ans)}));
+  const displayChoices = q.choices.length === 2 ? choiceShuffle : shuffleArr(choiceShuffle);
+
+  stage.innerHTML = `
+    <div class="quiz-topbar">
+      <span>QUESTION ${quizIndex+1} / ${total}</span>
+      <div class="timer-ring">
+        <span id="timerNum">${quizTimeLeft}s</span>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(quizIndex/total)*100}%"></div></div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-choices" id="quizChoices">
+      ${displayChoices.map((c,i)=>`
+        <div class="quiz-choice" data-correct="${c.isCorrect}" onclick="answerQuiz(this, ${c.isCorrect})">
+          <span class="shape" style="background:${SHAPE_COLORS[i % SHAPE_COLORS.length]}"></span>
+          <span>${c.text}</span>
+        </div>`).join('')}
+    </div>
+    <div class="quiz-footer">
+      <span>Score: <span style="color:var(--glow)">${quizScore}</span></span>
+      <span class="streak">🔥 Streak: ${quizStreak}</span>
+    </div>`;
+
+  quizTimer = setInterval(()=>{
+    quizTimeLeft -= 0.1;
+    if(quizTimeLeft <= 0){
+      quizTimeLeft = 0;
+      document.getElementById('timerFill').style.width = '0%';
+      document.getElementById('timerNum').textContent = '0s';
+      clearInterval(quizTimer);
+      if(!quizAnswered){ answerQuiz(null, false); }
+    } else {
+      document.getElementById('timerFill').style.width = (quizTimeLeft/QUIZ_TIME*100) + '%';
+      document.getElementById('timerNum').textContent = Math.ceil(quizTimeLeft) + 's';
+    }
+  }, 100);
+}
+
+function answerQuiz(el, isCorrect){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  clearInterval(quizTimer);
+  const choices = document.querySelectorAll('#quizChoices .quiz-choice');
+  choices.forEach(c=>{
+    c.classList.add('disabled');
+    if(c.dataset.correct === "true"){ c.classList.add('correct'); }
+  });
+  if(el && !isCorrect){ el.classList.add('wrong'); }
+
+  if(isCorrect){
+    quizStreak++;
+    quizBestStreak = Math.max(quizBestStreak, quizStreak);
+    const speedBonus = Math.max(0, Math.round(quizTimeLeft * 3));
+    quizScore += 100 + speedBonus + (quizStreak>=3 ? 20 : 0);
+  } else {
+    quizStreak = 0;
+  }
+
+  setTimeout(()=>{
+    quizIndex++;
+    if(quizIndex >= quizQuestions.length){ showQuizEnd(); }
+    else { showQuizQuestion(); }
+  }, 1100);
+}
+
+function showQuizEnd(){
+  const total = quizQuestions.length;
+  const pct = Math.round((quizScore / (total*120)) * 100);
+  let grade, color;
+  if(pct >= 90){ grade = "🏆 EXCELLENT"; color = "var(--good)"; }
+  else if(pct >= 75){ grade = "👍 GREAT JOB"; color = "var(--glow)"; }
+  else if(pct >= 50){ grade = "📚 KEEP REVIEWING"; color = "var(--amber)"; }
+  else { grade = "🔁 TRY AGAIN"; color = "var(--danger)"; }
+
+  const stage = document.getElementById('quizStage');
+  stage.innerHTML = `
+    <div class="quiz-endscreen">
+      <div class="eyebrow" style="color:var(--glow); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em;">QUIZ COMPLETE</div>
+      <div class="bigscore">${quizScore}</div>
+      <p>points · best streak 🔥 ${quizBestStreak} · ${quizQuestions.length} questions</p>
+      <span class="gradepill" style="background:${color}22; color:${color}; border:1px solid ${color};">${grade}</span>
+      <div style="margin-top:24px;">
+        <button class="ctrl primary" onclick="startQuiz()">Play Again</button>
+        <button class="ctrl" onclick="renderQuizStart()">Back to Start</button>
+      </div>
+    </div>`;
+}
+
+// =====================================================================
+// TAB SWITCHING
+// =====================================================================
+function refreshCurrentTab(){
+  const activeTab = document.querySelector('.tab.active').dataset.tab;
+  if(activeTab === 'flash'){ initFlashOrder(); renderCard(); }
+  else if(activeTab === 'feynman'){ renderFeynman(); }
+  else if(activeTab === 'blank'){ renderBlanks(); }
+  else if(activeTab === 'mock'){ renderMock(); }
+  else if(activeTab === 'exam'){ renderExam(); }
+  else if(activeTab === 'quiz'){ renderQuizStart(); }
+}
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    refreshCurrentTab();
+  });
+});
+
+// initial render
+initFlashOrder();
+renderCard();
+renderFeynman();
+renderBlanks();
+renderMock();
+renderExam();
+renderQuizStart();
+</script>
+</body>
+</html>
